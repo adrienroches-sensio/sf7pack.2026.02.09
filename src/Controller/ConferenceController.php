@@ -6,8 +6,7 @@ namespace App\Controller;
 
 use App\Entity\Conference;
 use App\Form\ConferenceType;
-use App\Repository\ConferenceRepositoryInterface;
-use App\Search\Conference\DatabaseConferenceSearch;
+use App\Search\Conference\ConferenceSearchInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,7 +45,7 @@ class ConferenceController extends AbstractController
         name: 'app_conference_list',
         methods: ['GET'],
     )]
-    public function list(Request $request, DatabaseConferenceSearch $conferenceSearch): Response
+    public function list(Request $request, ConferenceSearchInterface $conferenceSearch): Response
     {
         $conferences = $conferenceSearch->searchByName($request->query->getString('name'));
 

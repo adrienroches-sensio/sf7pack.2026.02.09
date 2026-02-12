@@ -82,4 +82,16 @@ class ConferenceRepository extends ServiceEntityRepository implements Conference
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function searchByName(string $name): array
+    {
+        $qb = $this->createQueryBuilder('conference');
+
+        $qb
+            ->andWhere($qb->expr()->like('conference.name', ':name'))
+            ->setParameter('name', "%{$name}%")
+        ;
+
+        return $qb->getQuery()->getResult();
+    }
 }

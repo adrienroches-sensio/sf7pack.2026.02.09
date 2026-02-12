@@ -90,6 +90,12 @@ class ConferenceRepository extends ServiceEntityRepository implements Conference
         $qb
             ->andWhere($qb->expr()->like('conference.name', ':name'))
             ->setParameter('name', "%{$name}%")
+
+            ->leftJoin('conference.organizations', 'organization')
+            ->addSelect('organization')
+
+            ->leftJoin('conference.volunteerings', 'volunteering')
+            ->addSelect('volunteering')
         ;
 
         return $qb->getQuery()->getResult();

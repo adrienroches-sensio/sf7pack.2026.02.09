@@ -6,15 +6,18 @@ use App\Repository\OrganizationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute as Serializer;
 
 #[ORM\Entity(repositoryClass: OrganizationRepository::class)]
 class Organization
 {
+    #[Serializer\Groups(['conference:list'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Serializer\Groups(['conference:list'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 

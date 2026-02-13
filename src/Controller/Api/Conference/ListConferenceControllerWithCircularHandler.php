@@ -11,11 +11,11 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route(
-    path: '/api/conferences',
-    name: 'api_conference_list',
+    path: '/api/conferences-circular-handler',
+    name: 'api_conference_list_circular_handler',
     methods: ['GET'],
 )]
-final class ListConferenceController
+final class ListConferenceControllerWithCircularHandler
 {
     public function __construct(
         private readonly SerializerInterface $serializer,
@@ -27,7 +27,9 @@ final class ListConferenceController
     {
         return new JsonResponse(
             $this->serializer->serialize($this->conferenceSearch->searchByName('202'), 'json', [
-                'groups' => ['conference:list'],
+                AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function(object $object, string $format, array $context) {
+                    return $object->getId();
+                }
             ]),
             json: true
         );

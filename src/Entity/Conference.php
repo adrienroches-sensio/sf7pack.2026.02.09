@@ -7,39 +7,47 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 use function count;
 
 #[ORM\Entity(repositoryClass: ConferenceRepository::class)]
 class Conference
 {
+    #[Serializer\Groups(['conference:list'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Serializer\Groups(['conference:list'])]
     #[Assert\NotNull(groups: ['Default', 'conference:edit'])]
     #[Assert\Length(min: 10, groups: ['Default', 'conference:edit'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[Serializer\Groups(['conference:list'])]
     #[Assert\NotNull(groups: ['Default', 'conference:edit'])]
     #[Assert\Length(min: 30, groups: ['Default', 'conference:edit'])]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
+    #[Serializer\Groups(['conference:list'])]
     #[ORM\Column]
     private bool $accessible = false;
 
+    #[Serializer\Groups(['conference:list'])]
     #[Assert\Length(min: 20, groups: ['Default', 'conference:edit'])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $prerequisites = null;
 
+    #[Serializer\Groups(['conference:list'])]
     #[Assert\NotNull(groups: ['Default', 'conference:edit'])]
     #[Assert\GreaterThanOrEqual(value: 'today', groups: ['Default'])]
     #[ORM\Column]
     private ?\DateTimeImmutable $startAt = null;
 
+    #[Serializer\Groups(['conference:list'])]
     #[Assert\NotNull(groups: ['Default', 'conference:edit'])]
     #[Assert\GreaterThanOrEqual(propertyPath: 'startAt', groups: ['Default', 'conference:edit'])]
     #[ORM\Column]
@@ -51,12 +59,14 @@ class Conference
     #[ORM\OneToMany(targetEntity: Volunteering::class, mappedBy: 'conference', orphanRemoval: true)]
     private Collection $volunteerings;
 
+    #[Serializer\Groups(['conference:list'])]
     /**
      * @var Collection<int, Organization>
      */
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'conferences')]
     private Collection $organizations;
 
+    #[Serializer\Groups(['conference:list'])]
     #[ORM\ManyToOne(inversedBy: 'conferences')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $createdBy = null;

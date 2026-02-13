@@ -8,10 +8,11 @@ use App\Entity\Conference;
 use App\Entity\User;
 use App\Security\ConferencePermission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\CacheableVoterInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-final class IsCreatorVoter implements VoterInterface
+final class IsCreatorVoter implements VoterInterface, CacheableVoterInterface
 {
     public function vote(TokenInterface $token, mixed $subject, array $attributes, ?Vote $vote = null): int
     {
@@ -36,5 +37,15 @@ final class IsCreatorVoter implements VoterInterface
         $vote?->addReason('User is not the creator.');
 
         return self::ACCESS_ABSTAIN;
+    }
+
+    public function supportsAttribute(string $attribute): bool
+    {
+        return $attribute === ConferencePermission::EDIT;
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, Conference::class, true);
     }
 }

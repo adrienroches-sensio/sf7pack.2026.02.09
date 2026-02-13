@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Conference\Event\ConferenceSubmittedEvent;
 use App\Entity\Conference;
 use App\Form\ConferenceType;
 use App\Search\Conference\ConferenceSearchInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,7 +24,7 @@ class ConferenceController extends AbstractController
         name: 'app_conference_new',
         methods: ['GET', 'POST'],
     )]
-    public function newConference(Request $request, EntityManagerInterface $entityManager): Response
+    public function newConference(Request $request, EntityManagerInterface $entityManager, EventDispatcherInterface $eventDispatcher): Response
     {
         $conference = new Conference();
 
@@ -29,13 +32,19 @@ class ConferenceController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // dispatch event
-            //   can prevent persist in database
+            $event = new ConferenceSubmittedEvent($conference);
+            $eventDispatcher->dispatch($event);
 
-            $entityManager->persist($conference);
-            $entityManager->flush();
+            if (!$event->isRejected()) {
+                $entityManager->persist($conference);
+                $entityManager->flush();
 
-            return $this->redirectToRoute('app_conference_show', ['id' => $conference->getId()]);
+                return $this->redirectToRoute('app_conference_show', ['id' => $conference->getId()]);
+            }
+
+            foreach ($event->getRejectReasons() as $reason) {
+                $form->addError(new FormError($reason));
+            }
         }
 
         return $this->render('conference/new.html.twig', [
